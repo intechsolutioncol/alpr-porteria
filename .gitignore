@@ -1,0 +1,23 @@
+# Entorno y caché de Python
+.venv/
+__pycache__/
+*.pyc
+
+# Base de datos local (se recrea sola con datos de ejemplo al arrancar la app)
+*.db
+
+# Modelos descargados automáticamente (yolo11n.pt se baja solo la primera vez
+# que se usa) — pero SÍ se incluye nuestro modelo propio ya entrenado:
+*.pt
+!modelos/best.pt
+
+# Datos generados por los scripts (todos regenerables, muy pesados para git)
+data/reales/
+data/sinteticas/
+data/dataset/
+data/dataset.zip
+data/fondos_reales/
+resultados/
+
+# Archivos temporales de conversión a PDF
+proyecto escrito/_temp_*.html

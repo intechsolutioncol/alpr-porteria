@@ -1,0 +1,6 @@
+# Dependencia extra SOLO para el objetivo opcional de la Semana 9
+# (control físico de la talanquera con Arduino). No es parte del stack
+# principal del proyecto: instálala solo si vas a usar src/talanquera.py.
+#
+#   pip install -r requirements-talanquera.txt
+pyserial
