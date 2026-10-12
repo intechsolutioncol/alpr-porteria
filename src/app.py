@@ -397,16 +397,20 @@ def panel_vigilante():
 
     # Recorte a un tercio del ancho: el recuadro de la cámara a ancho completo
     # queda demasiado grande y hace difícil encuadrar bien la placa.
-    col_camara, _, _ = st.columns(3)
+    # La cámara va en la columna angosta (un tercio) y el resultado de la
+    # validación en la columna ancha de al lado, en la misma fila — antes el
+    # resultado aparecía debajo, obligando a bajar la pantalla para verlo.
+    col_camara, col_resultado = st.columns([1, 2])
     with col_camara:
         foto_camara = st.camera_input("Capturar")
 
-    if foto_camara:
-        import numpy as np
-        datos = np.frombuffer(foto_camara.getvalue(), dtype="uint8")
-        imagen = cv2.imdecode(datos, cv2.IMREAD_COLOR)
-        imagen = _aplicar_roi(imagen, config_maqueta)
-        _procesar_captura(imagen, detector, contexto="camara")
+    with col_resultado:
+        if foto_camara:
+            import numpy as np
+            datos = np.frombuffer(foto_camara.getvalue(), dtype="uint8")
+            imagen = cv2.imdecode(datos, cv2.IMREAD_COLOR)
+            imagen = _aplicar_roi(imagen, config_maqueta)
+            _procesar_captura(imagen, detector, contexto="camara")
 
     st.sidebar.markdown("---")
     st.sidebar.subheader("Últimos 10 ingresos")
