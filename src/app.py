@@ -47,6 +47,11 @@ CONTRASENAS_POR_ROL = {
     "Administración": "admin123",
 }
 
+# Oculto por el momento a pedido del usuario (2026-10-12) — el código sigue
+# completo en _seccion_modo_maqueta(), solo se deja de mostrar en el panel
+# del vigilante. Para reactivarlo, cambiar a True.
+MOSTRAR_MODO_MAQUETA = False
+
 
 def pantalla_login():
     st.title("Sistema ALPR Portería — Ingreso")
@@ -347,7 +352,7 @@ def _aplicar_roi(imagen, roi):
 def panel_vigilante():
     st.title("🚗 Panel del vigilante")
 
-    config_maqueta = _seccion_modo_maqueta()
+    config_maqueta = _seccion_modo_maqueta() if MOSTRAR_MODO_MAQUETA else None
     detector = obtener_detector()
 
     st.sidebar.markdown("---")
