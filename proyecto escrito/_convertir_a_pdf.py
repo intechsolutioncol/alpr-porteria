@@ -10,6 +10,7 @@ Uso:
     python _convertir_a_pdf.py ruta\al\archivo.md "Título del PDF"
 """
 
+import ctypes
 import subprocess
 import sys
 from pathlib import Path
@@ -37,6 +38,24 @@ ESTILO = """
   em { color: #333; }
 </style>
 """
+
+
+def _ruta_corta_windows(ruta):
+    """
+    Convierte una ruta a su forma "8.3" de Windows (sin tildes/ñ ni
+    espacios, ej. C:\\Users\\ADMINI~1\\...). Hace falta porque se detectó
+    que pasarle a Edge un argumento --print-to-pdf con una ruta que tiene
+    una tilde (la carpeta de usuario de este equipo es "Administración")
+    hace que Edge termine SIN avisar ningún error y sin generar el PDF —
+    mismo tipo de problema que ya se vio con OpenCV en utilidades_imagen.py,
+    aquí resuelto igual: evitar pasarle al programa externo una ruta con
+    caracteres fuera de ASCII.
+    """
+    buffer = ctypes.create_unicode_buffer(260)
+    resultado = ctypes.windll.kernel32.GetShortPathNameW(str(ruta), buffer, 260)
+    if resultado == 0:
+        return ruta  # si falla la conversión, se intenta con la ruta original
+    return Path(buffer.value)
 
 
 def convertir(ruta_md, titulo=None, ruta_pdf=None):
@@ -71,14 +90,22 @@ def convertir(ruta_md, titulo=None, ruta_pdf=None):
         print(f"ERROR: no se encontró Edge en '{RUTA_EDGE}'.")
         sys.exit(1)
 
+    # Ruta corta (sin tildes) tanto para el HTML de entrada como para el PDF
+    # de salida — ver _ruta_corta_windows(). La ruta larga (con tilde) sigue
+    # apuntando al MISMO archivo en el disco, así que todo lo demás del
+    # script puede seguir usando `ruta_pdf` normalmente.
+    html_corta = _ruta_corta_windows(ruta_html_temp)
+    pdf_carpeta_corta = _ruta_corta_windows(ruta_pdf.parent)
+    pdf_corta = Path(pdf_carpeta_corta) / ruta_pdf.name
+
     comando = [
         RUTA_EDGE,
         "--headless",
         "--disable-gpu",
-        f"--print-to-pdf={ruta_pdf}",
+        f"--print-to-pdf={pdf_corta}",
         "--print-to-pdf-no-header",
         "--no-margins",
-        ruta_html_temp.as_uri(),
+        Path(html_corta).as_uri(),
     ]
     resultado = subprocess.run(comando, capture_output=True, text=True, timeout=60)
 

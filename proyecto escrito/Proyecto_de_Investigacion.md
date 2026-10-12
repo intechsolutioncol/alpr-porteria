@@ -1,6 +1,6 @@
 # Sistema de Reconocimiento Automático de Placas Vehiculares (ALPR) para el Control de Acceso en Porterías de Conjuntos Residenciales
 
-**Institución:** Colegio Londres
+**Institución:** Institución Educativa Consejo Municipal La Estrella
 **Grado:** Once
 **Área:** Tecnología e Informática — Proyecto de Feria de la Ciencia
 **Fecha:** Septiembre de 2026

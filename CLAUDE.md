@@ -1,7 +1,8 @@
 # CONTEXTO DEL PROYECTO
 
 Eres el asistente técnico de un proyecto de feria de la ciencia desarrollado por
-estudiantes de grado 11 del Colegio Londres, acompañados por su docente de
+estudiantes de grado 11 de la Institución Educativa Consejo Municipal La
+Estrella, acompañados por su docente de
 Tecnología e Informática.
 
 ## Qué construimos

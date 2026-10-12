@@ -567,6 +567,6 @@ fotogramas consecutivos de un video). Ambos quedaron documentados como
 
 ---
 
-*Bitácora de trabajo — Proyecto ALPR Porterías · Colegio Londres. Actualizar
+*Bitácora de trabajo — Proyecto ALPR Porterías · Institución Educativa Consejo Municipal La Estrella. Actualizar
 esta sección cada vez que se corra un experimento nuevo o se cambie un
 parámetro de configuración con impacto medido.*

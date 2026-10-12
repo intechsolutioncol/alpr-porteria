@@ -1,6 +1,6 @@
 # Sistema de Reconocimiento de Placas para Porterías (ALPR)
 
-Proyecto de feria de la ciencia — Colegio Londres, Grado 11.
+Proyecto de feria de la ciencia — Institución Educativa Consejo Municipal La Estrella, Grado 11.
 
 Detecta la placa de un vehículo (foto, video o webcam), lee sus caracteres y
 consulta una base de datos para decidir si el vehículo es residente,

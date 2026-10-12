@@ -748,6 +748,33 @@ def panel_administracion():
 # ---------------------------------------------------------------------------
 
 
+# Integrantes del proyecto, para el pie de página (requisito de la feria de
+# la ciencia: el nombre del proyecto y de las autoras deben verse en la
+# plataforma, no solo en el informe escrito).
+NOMBRE_PROYECTO = "Sistema ALPR Portería"
+INTEGRANTES = [
+    "Keisy Ruiz",
+    "Mariajosé Urrego",
+    "Isabela Hernández",
+    "Xiomara Echavarría",
+    "Nicole Arteaga",
+]
+
+
+def _pie_de_pagina():
+    st.markdown("---")
+    st.markdown(
+        f"""
+        <div style="text-align:center; padding: 0.5rem 0 1.5rem 0; opacity: 0.7; font-size: 0.85rem;">
+            <strong>{NOMBRE_PROYECTO}</strong> — Proyecto de Feria de la Ciencia<br>
+            Institución Educativa Consejo Municipal La Estrella · Grado Once<br>
+            Desarrollado por: {" · ".join(INTEGRANTES)}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main():
     st.set_page_config(page_title="ALPR Portería", page_icon="🚧", layout="wide")
     base_datos.crear_tablas()
@@ -764,6 +791,7 @@ def main():
 
     if st.session_state.rol is None:
         pantalla_login()
+        _pie_de_pagina()
         return
 
     cerrar_sesion()
@@ -778,6 +806,8 @@ def main():
         panel_propietario()
     elif st.session_state.rol == "Administración":
         panel_administracion()
+
+    _pie_de_pagina()
 
 
 if __name__ == "__main__":
