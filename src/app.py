@@ -359,69 +359,54 @@ def panel_vigilante():
             for c in coincidencias:
                 st.write(f"`{c['placa']}` — {c['origen']}")
 
-    tab_foto, tab_video, tab_camara = st.tabs(["📷 Subir foto", "🎞️ Subir video", "🎥 Cámara en vivo"])
+    # Solo cámara en vivo: se quitaron "Subir foto" y "Subir video" porque en
+    # el uso real de la portería el vigilante siempre captura con la webcam,
+    # no sube archivos — menos opciones, menos confusión en el momento.
+    st.caption(
+        "Modo 'un vistazo': toma una foto con la webcam (Streamlit no soporta "
+        "video continuo sin librerías fuera del stack del proyecto)."
+    )
 
-    with tab_foto:
-        archivo = st.file_uploader("Foto del vehículo", type=["jpg", "jpeg", "png"], key="foto")
-        if archivo:
-            import numpy as np
-            datos = np.frombuffer(archivo.read(), dtype="uint8")
-            imagen = cv2.imdecode(datos, cv2.IMREAD_COLOR)
-            imagen = _aplicar_roi(imagen, config_maqueta)
+    # El botón interno de la cámara dice "Take Photo" en inglés y Streamlit no
+    # da una forma oficial de cambiarle el texto — se renombra con un truco de
+    # CSS: se oculta el texto original y se dibuja "Validar Ingreso" encima,
+    # apuntando al mismo botón exacto que usa Streamlit internamente
+    # (data-testid="stCameraInputButton"). Si una futura versión de Streamlit
+    # cambia ese nombre interno, este truco deja de aplicarse (el botón sigue
+    # funcionando igual, solo volvería a decir "Take Photo").
+    st.markdown(
+        """
+        <style>
+        button[data-testid="stCameraInputButton"] {
+            font-size: 0;
+            position: relative;
+        }
+        button[data-testid="stCameraInputButton"]::after {
+            content: "Validar Ingreso";
+            font-size: 1rem;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-            if config_maqueta:
-                gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
-                nitidez, brillo = _calidad_imagen(gris)
-                mensaje, _ = _evaluar_calidad(nitidez, brillo)
-                st.caption(f"{mensaje} (nitidez={nitidez:.0f}, brillo={brillo:.0f})")
-
-            _procesar_captura(imagen, detector, contexto="foto")
-
-    with tab_video:
-        archivo_video = st.file_uploader("Video del vehículo", type=["mp4", "avi", "mov"], key="video")
-        if archivo_video:
-            ruta_temp = config.DIR_DATA_REALES / "_temp_video_subido.mp4"
-            with open(ruta_temp, "wb") as f:
-                f.write(archivo_video.read())
-
-            marcador = st.empty()
-            votador = VotadorTemporal()
-            captura = cv2.VideoCapture(str(ruta_temp))
-            ultima_consolidada = None
-
-            while True:
-                leido, cuadro = captura.read()
-                if not leido:
-                    break
-                cuadro = _aplicar_roi(cuadro, config_maqueta)
-                vehiculos = detector.detectar_en_imagen(cuadro)
-                if vehiculos:
-                    lectura = _leer_y_validar(vehiculos[0]["recorte"])
-                    votador.agregar_lectura(lectura["texto_corregido"], lectura["confianza_final"])
-                consolidada = votador.consolidar_si_corresponde()
-                if consolidada:
-                    ultima_consolidada = consolidada
-                marcador.image(cv2.cvtColor(cuadro, cv2.COLOR_BGR2RGB), caption=f"Consolidada hasta ahora: {ultima_consolidada or '—'}")
-
-            captura.release()
-            if ultima_consolidada:
-                resultado = autorizacion.evaluar_ingreso(ultima_consolidada, 0.9)
-                _mostrar_resultado_autorizacion(resultado, contexto="video")
-            else:
-                st.info("El video terminó sin consolidar ninguna placa (pocos fotogramas con lectura consistente).")
-
-    with tab_camara:
-        st.caption(
-            "Modo 'un vistazo': toma una foto con la webcam (Streamlit no soporta "
-            "video continuo sin librerías fuera del stack del proyecto)."
-        )
+    # Recorte a un tercio del ancho: el recuadro de la cámara a ancho completo
+    # queda demasiado grande y hace difícil encuadrar bien la placa.
+    col_camara, _, _ = st.columns(3)
+    with col_camara:
         foto_camara = st.camera_input("Capturar")
-        if foto_camara:
-            import numpy as np
-            datos = np.frombuffer(foto_camara.getvalue(), dtype="uint8")
-            imagen = cv2.imdecode(datos, cv2.IMREAD_COLOR)
-            imagen = _aplicar_roi(imagen, config_maqueta)
-            _procesar_captura(imagen, detector, contexto="camara")
+
+    if foto_camara:
+        import numpy as np
+        datos = np.frombuffer(foto_camara.getvalue(), dtype="uint8")
+        imagen = cv2.imdecode(datos, cv2.IMREAD_COLOR)
+        imagen = _aplicar_roi(imagen, config_maqueta)
+        _procesar_captura(imagen, detector, contexto="camara")
 
     st.sidebar.markdown("---")
     st.sidebar.subheader("Últimos 10 ingresos")
